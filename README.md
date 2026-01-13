@@ -79,10 +79,10 @@ graph TD;
         Proxy -- "/api/*" --> Backend["API Backend :3000"];
     end
     
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style Proxy fill:#bbf,stroke:#333,stroke-width:2px
-    style Frontend fill:#dfd,stroke:#333,stroke-width:2px
-    style Backend fill:#ffd,stroke:#333,stroke-width:2px
+    style User fill:#f9f,stroke:#333,stroke-width:2px,color:black
+    style Proxy fill:#bbf,stroke:#333,stroke-width:2px,color:black
+    style Frontend fill:#dfd,stroke:#333,stroke-width:2px,color:black
+    style Backend fill:#ffd,stroke:#333,stroke-width:2px,color:black
 ```
 
 ### Description du Flux
