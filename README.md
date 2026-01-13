@@ -1,9 +1,10 @@
 # TP - DOCKER CLOUD
 
-## Sommaire
 - [COMMENCER](#commencer)
 - [DOCUMENTATIONS](#documentations)
 - [SCHÉMA DE COMMUNICATION](#schéma-de-communication)
+
+
 
 ## GET STARTED
 
@@ -72,10 +73,10 @@ Le diagramme suivant illustre la communication entre les services au sein du ré
 
 ```mermaid
 graph TD;
-    User["Navigateur Web / Utilisateur"] -- "HTTP Port 80" --> Proxy["Webserver (Nginx Proxy)"];
+    User["Utilisateur"] -- "HTTP Port 80" --> Proxy["Webserver"];
     
     subgraph Docker Network
-        Proxy -- "/ (Racine)" --> Frontend["Service Frontend :8080"];
+        Proxy -- "/" --> Frontend["Service Frontend :8080"];
         Proxy -- "/api/*" --> Backend["API Backend :3000"];
     end
     
