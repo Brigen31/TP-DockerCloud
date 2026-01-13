@@ -1,0 +1,76 @@
+services:
+  # ---------------------------------------------------------------------------
+  # Service: Backend API
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./src/backend
+      args:
+        NODE_ENV: production
+    container_name: production_backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    stop_signal: SIGTERM
+    environment:
+      - PORT=3000
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Service: Frontend Angular
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./src/frontend
+    container_name: production_frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+    networks:
+      - app-network
+    stop_signal: SIGTERM
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Service: Web Server (Reverse Proxy)
+  # ---------------------------------------------------------------------------
+  webserver:
+    build:
+      context: ./src/webserver
+    container_name: production_gateway
+    ports:
+      - "80:80"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - app-network
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+
+networks:
+  app-network:
+    driver: bridge
