@@ -72,11 +72,11 @@ Le diagramme suivant illustre la communication entre les services au sein du ré
 
 ```mermaid
 graph TD;
-    User["Navigateur Web / Utilisateur"] -->|HTTP Port 80| Proxy["Webserver (Nginx Proxy)"];
+    User["Navigateur Web / Utilisateur"] -- "HTTP Port 80" --> Proxy["Webserver (Nginx Proxy)"];
     
     subgraph Docker Network
-        Proxy -->|/ (Racine)| Frontend["Service Frontend :8080"];
-        Proxy -->|/api/*| Backend["API Backend :3000"];
+        Proxy -- "/ (Racine)" --> Frontend["Service Frontend :8080"];
+        Proxy -- "/api/*" --> Backend["API Backend :3000"];
     end
     
     style User fill:#f9f,stroke:#333,stroke-width:2px
