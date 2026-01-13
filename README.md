@@ -91,3 +91,19 @@ graph TD;
 2. **Le Webserver (Proxy)** reçoit la requête.
 3. Si le chemin est `/api/`, la requête est proxifiée vers le conteneur **Backend** sur le port `3000`.
 4. Si le chemin est `/` (ou tout autre chose), la requête est proxifiée vers le conteneur **Frontend** sur le port `8080`.
+
+---
+
+## CHOIX TECHNIQUES
+
+### 1. Images & Sécurité
+Toutes les images sont basées sur **Alpine** (plus léger) et sont **personnalisées**.
+- **Backend** : Utilise `tini` (gestion processus) et un utilisateur non-root (`node`) pour la sécurité.
+- **Frontend / Webserver** : Tournent avec l'utilisateur restreint `nginx`.
+
+### 2. Ressources Limitées
+Pour imiter un cloud réel :
+- **Backend** : `512Mo` / `0.5 CPU`
+- **Frontend** : `256Mo` / `0.5 CPU`
+- **Webserver** : `128Mo` / `0.25 CPU`
+
