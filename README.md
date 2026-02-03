@@ -1,10 +1,9 @@
 # TP - DOCKER CLOUD
 
+## Sommaire
 - [COMMENCER](#commencer)
 - [DOCUMENTATIONS](#documentations)
 - [SCHÉMA DE COMMUNICATION](#schéma-de-communication)
-
-
 
 ## GET STARTED
 
@@ -49,6 +48,7 @@ Ce projet se compose de trois microservices principaux orchestrés par Docker Co
   - Les requêtes commençant par `/api/` sont transmises au service **Backend**.
   - Toutes les autres requêtes (racine `/`) sont transmises au service **Frontend**.
 - **Configuration :** `proxy.conf` définit les serveurs amont (upstream) et les règles de routage.
+- **EN :** `ENTRYPOINT ["/sbin/tini", "--"]` -> tini est un petit système d'initialisation ("init system"). J'utilise alors tini parce que Node.js n'est pas conçu pour s'exécuter en tant que PID 1 et ne gère pas toujours correctement ces signaux.
 
 ### 2. Frontend
 - **Dossier :** `src/frontend`
@@ -73,17 +73,17 @@ Le diagramme suivant illustre la communication entre les services au sein du ré
 
 ```mermaid
 graph TD;
-    User["Utilisateur"] -- "HTTP Port 80" --> Proxy["Webserver"];
+    User[Navigateur Web / Utilisateur] -->|HTTP Port 80| Proxy[Webserver (Nginx Proxy)];
     
     subgraph Docker Network
-        Proxy -- "/" --> Frontend["Service Frontend :8080"];
-        Proxy -- "/api/*" --> Backend["API Backend :3000"];
+        Proxy -->|/ (Racine)| Frontend[Service Frontend :8080];
+        Proxy -->|/api/*| Backend[API Backend :3000];
     end
     
-    style User fill:#f9f,stroke:#333,stroke-width:2px,color:black
-    style Proxy fill:#bbf,stroke:#333,stroke-width:2px,color:black
-    style Frontend fill:#dfd,stroke:#333,stroke-width:2px,color:black
-    style Backend fill:#ffd,stroke:#333,stroke-width:2px,color:black
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style Proxy fill:#bbf,stroke:#333,stroke-width:2px
+    style Frontend fill:#dfd,stroke:#333,stroke-width:2px
+    style Backend fill:#ffd,stroke:#333,stroke-width:2px
 ```
 
 ### Description du Flux
@@ -91,19 +91,3 @@ graph TD;
 2. **Le Webserver (Proxy)** reçoit la requête.
 3. Si le chemin est `/api/`, la requête est proxifiée vers le conteneur **Backend** sur le port `3000`.
 4. Si le chemin est `/` (ou tout autre chose), la requête est proxifiée vers le conteneur **Frontend** sur le port `8080`.
-
----
-
-## CHOIX TECHNIQUES
-
-### 1. Images & Sécurité
-Toutes les images sont basées sur **Alpine** (plus léger) et sont **personnalisées**.
-- **Backend** : Utilise `tini` (gestion processus) et un utilisateur non-root (`node`) pour la sécurité.
-- **Frontend / Webserver** : Tournent avec l'utilisateur restreint `nginx`.
-
-### 2. Ressources Limitées
-Pour imiter un cloud réel :
-- **Backend** : `512Mo` / `0.5 CPU`
-- **Frontend** : `256Mo` / `0.5 CPU`
-- **Webserver** : `128Mo` / `0.25 CPU`
-
