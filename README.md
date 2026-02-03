@@ -72,18 +72,23 @@ Ce projet se compose de trois microservices principaux orchestrés par Docker Co
 Le diagramme suivant illustre la communication entre les services au sein du réseau Docker.
 
 ```mermaid
-graph TD;
-    User["Navigateur Web / Utilisateur"] -->|HTTP Port 80| Proxy["Webserver (Nginx Proxy)"];
-    
+graph TD
+    User["Navigateur Web / Utilisateur"]
+    Proxy["Webserver (Nginx Proxy)"]
+
     subgraph Docker Network
-        Proxy -->|/ (Racine)| Frontend["Service Frontend :8080"];
-        Proxy -->|/api/*| Backend["API Backend :3000"];
+        Frontend["Service Frontend :8080"]
+        Backend["API Backend :3000"]
     end
-    
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style Proxy fill:#bbf,stroke:#333,stroke-width:2px
-    style Frontend fill:#dfd,stroke:#333,stroke-width:2px
-    style Backend fill:#ffd,stroke:#333,stroke-width:2px
+
+    User --> |HTTP Port 80| Proxy
+    Proxy --> |/|Frontend
+    Proxy --> |/api/*|Backend
+
+    style User fill:#333,stroke:#444,stroke-width:1px
+    style Proxy fill:#333,stroke:#444,stroke-width:1px
+    style Frontend fill:#333,stroke:#444,stroke-width:1px
+    style Backend fill:#333,stroke:#444,stroke-width:1px
 ```
 
 ### Description du Flux
