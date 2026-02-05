@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # Service: Backend API
+  # ---------------------------------------------------------------------------
+  backend:
+    image: tp-dockercloud-backend:latest
+    build:
+      context: ./src/backend
+      args:
+        NODE_ENV: production
+    deploy:
+      # 3 replicas deployer
+      replicas: 3
+      resources:
+        # ressources max à allouer
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        # ressources allouer
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      # Restart si le deployement fail
+      restart_policy:
+        condition: on-failure
+      # Rolling Update avec 10s d'écart entre chaque mise à jour de replicas
+      update_config:
+        parallelism: 1
+        delay: 10s
+    environment:
+      - PORT=3000
+    networks:
+      - app-network
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Service: Frontend Angular
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: tp-dockercloud-frontend:latest
+    build:
+      context: ./src/frontend
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+    networks:
+      - app-network
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Service: Web Server (Reverse Proxy)
+  # ---------------------------------------------------------------------------
+  webserver:
+    image: tp-dockercloud-webserver:latest
+    build:
+      context: ./src/webserver
+    ports:
+      - "80:80"
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  app-network:
+    driver: overlay
